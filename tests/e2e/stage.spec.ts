@@ -19,6 +19,21 @@ test.describe("pinned video stage", () => {
     await expect(videoA).toHaveAttribute("playsinline", "");
     await expect(videoA).toHaveAttribute("loop", "");
     await expect(videoA).toHaveAttribute("autoplay", "");
+    await expect(videoA).toHaveJSProperty("loop", true);
+  });
+
+  test("scrollY 0: hero video keeps playing across a loop/ended cycle", async ({ page }) => {
+    await page.goto("/");
+    const videoA = page.getByTestId("stage-video-a");
+    await videoA.evaluate((el: HTMLVideoElement) => {
+      el.dispatchEvent(new Event("ended"));
+    });
+    await page.waitForFunction(() => {
+      const el = document.querySelector('[data-testid="stage-video-a"]') as HTMLVideoElement | null;
+      return el ? !el.paused : false;
+    });
+    const paused = await videoA.evaluate((el: HTMLVideoElement) => el.paused);
+    expect(paused).toBe(false);
   });
 
   test("scrolling to 1.2x viewport height: Layer B fully visible, Layer A paused", async ({

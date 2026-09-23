@@ -127,16 +127,31 @@ export function ScrollStage({
       }
     };
 
+    // Some browsers/webviews silently ignore the native `loop` attribute
+    // (observed under low-power/battery-saver modes), leaving the video
+    // paused on its final frame after one cycle. Force a restart on `ended`
+    // as a fallback so playback never stalls.
+    const restartOnEnded = (video: HTMLVideoElement) => {
+      video.currentTime = 0;
+      video.play().catch(logPlayRejection);
+    };
+    const onHeroEnded = () => restartOnEnded(heroVideo!);
+    const onBlurEnded = () => restartOnEnded(blurVideo!);
+
     applyStageP();
     window.addEventListener("scroll", onScroll, { passive: true });
     document.addEventListener("visibilitychange", onVisibility);
     heroVideo?.addEventListener("play", enforceHeroPauseRule);
     blurVideo?.addEventListener("play", enforceBlurPauseRule);
+    heroVideo?.addEventListener("ended", onHeroEnded);
+    blurVideo?.addEventListener("ended", onBlurEnded);
     return () => {
       window.removeEventListener("scroll", onScroll);
       document.removeEventListener("visibilitychange", onVisibility);
       heroVideo?.removeEventListener("play", enforceHeroPauseRule);
       blurVideo?.removeEventListener("play", enforceBlurPauseRule);
+      heroVideo?.removeEventListener("ended", onHeroEnded);
+      blurVideo?.removeEventListener("ended", onBlurEnded);
     };
   }, [disableMotion, isDesktop]);
 
