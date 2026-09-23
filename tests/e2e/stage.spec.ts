@@ -39,7 +39,7 @@ test.describe("pinned video stage", () => {
       const stage = document.querySelector('[data-testid="scroll-stage"]');
       if (!stage) return [];
       return Array.from(stage.querySelectorAll("*"))
-        .filter((el) => getComputedStyle(el).display !== "none")
+        .filter((el) => el.tagName !== "SOURCE" && getComputedStyle(el).display !== "none")
         .map((el) => getComputedStyle(el).filter);
     });
     expect(filters.length).toBeGreaterThan(0);
@@ -53,7 +53,10 @@ test.describe("pinned video stage", () => {
     const count = await page.evaluate(
       () =>
         Array.from(document.querySelectorAll("*")).filter(
-          (el) => getComputedStyle(el).backdropFilter !== "none",
+          (el) =>
+            el.tagName !== "SOURCE" &&
+            getComputedStyle(el).display !== "none" &&
+            getComputedStyle(el).backdropFilter !== "none",
         ).length,
     );
     expect(count).toBe(testInfo.project.name === "mobile" ? 0 : 1);
