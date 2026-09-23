@@ -45,7 +45,7 @@ function getMotionSnapshot() {
 }
 
 function getMotionServerSnapshot() {
-  return true;
+  return false;
 }
 
 export function ScrollStage({
