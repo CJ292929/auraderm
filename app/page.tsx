@@ -1,6 +1,11 @@
 import { ScrollStage } from "@/components/scroll/ScrollStage";
 import { Nav } from "@/components/site/Nav";
 import { Hero } from "@/components/sections/Hero";
+import { Statement } from "@/components/sections/Statement";
+import { Ingredients } from "@/components/sections/Ingredients";
+import { Benefits } from "@/components/sections/Benefits";
+import { LeafDivider } from "@/components/ui/LeafDivider";
+import { Container } from "@/components/ui/Container";
 
 export default function Home() {
   return (
@@ -15,8 +20,12 @@ export default function Home() {
       <Nav />
       <main className="relative">
         <Hero />
-        {/* temporary scroll-test spacer — removed in P1-P4 */}
-        <div id="stage-test" aria-hidden="true" className="h-[200vh]" />
+        <Statement />
+        <Ingredients />
+        <Container>
+          <LeafDivider />
+        </Container>
+        <Benefits />
       </main>
     </>
   );

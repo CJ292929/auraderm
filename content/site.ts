@@ -61,6 +61,11 @@ export type Site = {
     accentWord: string;
     subcopy: string;
   };
+  ingredientsPanel: {
+    title: string;
+    sideLabelLeft: string;
+    sideLabelRight: string;
+  };
   products: Product[];
   ingredients: Ingredient[];
   benefits: Benefit[];
@@ -100,6 +105,11 @@ export const site: Site = {
     line2: CONTENT("statement copy line 2"),
     accentWord: CONTENT("statement accent word"),
     subcopy: CONTENT("statement subcopy"),
+  },
+  ingredientsPanel: {
+    title: CONTENT("panel title, e.g. The botanicals"),
+    sideLabelLeft: CONTENT("side label left"),
+    sideLabelRight: CONTENT("side label right"),
   },
   products: [],
   ingredients: [
