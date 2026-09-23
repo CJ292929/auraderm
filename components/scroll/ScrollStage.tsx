@@ -1,6 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useSyncExternalStore, type CSSProperties } from "react";
+import {
+  useEffect,
+  useRef,
+  useSyncExternalStore,
+  type CSSProperties,
+  type SyntheticEvent,
+} from "react";
 
 type ScrollStageProps = {
   hero1280Src: string;
@@ -15,6 +21,15 @@ const STAGE_P_VIEWPORT_MULTIPLIER = 1.2;
 
 function logPlayRejection() {
   console.debug("[ScrollStage] video play() rejected — leaving poster visible");
+}
+
+function logVideoError(label: string) {
+  return (event: SyntheticEvent<HTMLVideoElement>) => {
+    const video = event.currentTarget;
+    console.error(
+      `[ScrollStage] ${label} video failed to decode (code=${video.error?.code ?? "unknown"})`,
+    );
+  };
 }
 
 function subscribeToViewport(callback: () => void) {
@@ -82,10 +97,40 @@ export function ScrollStage({
     // by React on the client (e.g. swapped in for the poster <img> after
     // the reduced-motion check resolves post-hydration), so autoplay
     // policies see `muted` as false unless we set the property explicitly.
-    if (heroVideo) heroVideo.muted = true;
-    if (blurVideo) blurVideo.muted = true;
+    if (heroVideo) {
+      heroVideo.defaultMuted = true;
+      heroVideo.muted = true;
+    }
+    if (blurVideo) {
+      blurVideo.defaultMuted = true;
+      blurVideo.muted = true;
+    }
 
     let ticking = false;
+
+    // Some browsers (notably Safari under stricter autoplay heuristics) can
+    // still reject play() even with muted set. Once that happens, arm a
+    // one-time fallback that retries on the first user interaction, rather
+    // than leaving the video permanently stuck on the poster frame.
+    let fallbackArmed = false;
+    let retryOnInteraction: (() => void) | null = null;
+    const armAutoplayFallback = () => {
+      if (fallbackArmed) return;
+      fallbackArmed = true;
+      retryOnInteraction = () => {
+        heroVideo?.play().catch(logPlayRejection);
+        blurVideo?.play().catch(logPlayRejection);
+      };
+      window.addEventListener("click", retryOnInteraction, { once: true });
+      window.addEventListener("touchstart", retryOnInteraction, { once: true });
+      window.addEventListener("scroll", retryOnInteraction, { once: true });
+    };
+    const attemptPlay = (video: HTMLVideoElement) => {
+      video.play().catch(() => {
+        logPlayRejection();
+        armAutoplayFallback();
+      });
+    };
 
     const applyStageP = () => {
       const p = Math.min(
@@ -96,12 +141,12 @@ export function ScrollStage({
 
       if (heroVideo) {
         if (p >= 1) heroVideo.pause();
-        else heroVideo.play().catch(logPlayRejection);
+        else attemptPlay(heroVideo);
       }
 
       if (blurVideo) {
         if (p <= 0) blurVideo.pause();
-        else blurVideo.play().catch(logPlayRejection);
+        else attemptPlay(blurVideo);
       }
     };
 
@@ -141,7 +186,7 @@ export function ScrollStage({
     // as a fallback so playback never stalls.
     const restartOnEnded = (video: HTMLVideoElement) => {
       video.currentTime = 0;
-      video.play().catch(logPlayRejection);
+      attemptPlay(video);
     };
     const onHeroEnded = () => restartOnEnded(heroVideo!);
     const onBlurEnded = () => restartOnEnded(blurVideo!);
@@ -160,6 +205,11 @@ export function ScrollStage({
       blurVideo?.removeEventListener("play", enforceBlurPauseRule);
       heroVideo?.removeEventListener("ended", onHeroEnded);
       blurVideo?.removeEventListener("ended", onBlurEnded);
+      if (retryOnInteraction) {
+        window.removeEventListener("click", retryOnInteraction);
+        window.removeEventListener("touchstart", retryOnInteraction);
+        window.removeEventListener("scroll", retryOnInteraction);
+      }
     };
   }, [disableMotion, isDesktop]);
 
@@ -189,9 +239,10 @@ export function ScrollStage({
             playsInline
             autoPlay
             loop
-            preload="metadata"
+            preload="auto"
             poster={posterSrc}
             className="h-full w-full object-cover"
+            onError={logVideoError("hero")}
           >
             <source src={isDesktop ? hero1280Src : hero720Src} type="video/mp4" />
           </video>
@@ -211,9 +262,10 @@ export function ScrollStage({
             playsInline
             autoPlay
             loop
-            preload="metadata"
+            preload="auto"
             poster={posterBlurSrc}
             className="h-full w-full object-cover"
+            onError={logVideoError("blur")}
           >
             <source src={heroBlurSrc} type="video/mp4" />
           </video>
