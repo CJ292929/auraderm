@@ -77,6 +77,14 @@ export function ScrollStage({
     const heroVideo = heroVideoRef.current;
     const blurVideo = blurVideoRef.current;
 
+    // The `muted` attribute only seeds the native `muted` property when an
+    // element is parsed from HTML. Layer A/B videos can instead be created
+    // by React on the client (e.g. swapped in for the poster <img> after
+    // the reduced-motion check resolves post-hydration), so autoplay
+    // policies see `muted` as false unless we set the property explicitly.
+    if (heroVideo) heroVideo.muted = true;
+    if (blurVideo) blurVideo.muted = true;
+
     let ticking = false;
 
     const applyStageP = () => {
