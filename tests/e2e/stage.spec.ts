@@ -36,16 +36,19 @@ test.describe("pinned video stage", () => {
     expect(paused).toBe(false);
   });
 
-  test("scrolling to 1.2x viewport height: Layer B fully visible, Layer A paused", async ({
+  test("scrolling to 1.2x viewport height: Layer B fully visible, Layer A keeps playing", async ({
     page,
   }) => {
     await page.goto("/");
     await scrollPastHero(page);
     await expect(page.getByTestId("stage-layer-b")).toHaveCSS("opacity", "1");
-    const paused = await page
-      .getByTestId("stage-video-a")
-      .evaluate((el: HTMLVideoElement) => el.paused);
-    expect(paused).toBe(true);
+    const videoA = page.getByTestId("stage-video-a");
+    const paused = await videoA.evaluate((el: HTMLVideoElement) => el.paused);
+    expect(paused).toBe(false);
+    const timeBefore = await videoA.evaluate((el: HTMLVideoElement) => el.currentTime);
+    await page.waitForTimeout(500);
+    const timeAfter = await videoA.evaluate((el: HTMLVideoElement) => el.currentTime);
+    expect(timeAfter).toBeGreaterThan(timeBefore);
   });
 
   test("computed filter is none for every stage layer", async ({ page }) => {

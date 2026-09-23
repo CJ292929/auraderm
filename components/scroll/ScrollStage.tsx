@@ -132,6 +132,10 @@ export function ScrollStage({
       });
     };
 
+    // Scroll only drives the Layer A/B crossfade opacity via --stage-p; it
+    // never pauses playback. Both videos free-run continuously from mount
+    // regardless of scroll position (visibility/tab-hidden is the only
+    // thing allowed to pause them, handled separately below).
     const applyStageP = () => {
       const p = Math.min(
         1,
@@ -139,27 +143,8 @@ export function ScrollStage({
       );
       stage.style.setProperty("--stage-p", String(p));
 
-      if (heroVideo) {
-        if (p >= 1) heroVideo.pause();
-        else attemptPlay(heroVideo);
-      }
-
-      if (blurVideo) {
-        if (p <= 0) blurVideo.pause();
-        else attemptPlay(blurVideo);
-      }
-    };
-
-    // Autoplay can start asynchronously after applyStageP already decided to
-    // pause a video (e.g. the browser's own autoplay resolves mid-scroll) —
-    // re-enforce the pause rule whenever a stage video starts playing.
-    const enforceHeroPauseRule = () => {
-      const p = parseFloat(stage.style.getPropertyValue("--stage-p")) || 0;
-      if (p >= 1) heroVideo?.pause();
-    };
-    const enforceBlurPauseRule = () => {
-      const p = parseFloat(stage.style.getPropertyValue("--stage-p")) || 0;
-      if (p <= 0) blurVideo?.pause();
+      if (heroVideo) attemptPlay(heroVideo);
+      if (blurVideo) attemptPlay(blurVideo);
     };
 
     const onScroll = () => {
@@ -194,15 +179,11 @@ export function ScrollStage({
     applyStageP();
     window.addEventListener("scroll", onScroll, { passive: true });
     document.addEventListener("visibilitychange", onVisibility);
-    heroVideo?.addEventListener("play", enforceHeroPauseRule);
-    blurVideo?.addEventListener("play", enforceBlurPauseRule);
     heroVideo?.addEventListener("ended", onHeroEnded);
     blurVideo?.addEventListener("ended", onBlurEnded);
     return () => {
       window.removeEventListener("scroll", onScroll);
       document.removeEventListener("visibilitychange", onVisibility);
-      heroVideo?.removeEventListener("play", enforceHeroPauseRule);
-      blurVideo?.removeEventListener("play", enforceBlurPauseRule);
       heroVideo?.removeEventListener("ended", onHeroEnded);
       blurVideo?.removeEventListener("ended", onBlurEnded);
       if (retryOnInteraction) {
