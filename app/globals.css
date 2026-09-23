@@ -1,0 +1,38 @@
+@import "tailwindcss";
+
+:root {
+  --forest-deep: #15231a;
+  --forest: #2f4a2a;
+  --gold: #c39e3a;
+  --gold-deep: #8a6d1f;
+  --cream: #fbf8ee;
+  --sage-muted: #a8b59c;
+  --glass: rgba(47, 74, 42, 0.35);
+  --glass-solid: rgba(21, 35, 26, 0.78);
+  --glass-border: rgba(195, 158, 58, 0.15);
+  --radius-panel: 20px;
+  --radius-pill: 999px;
+  --radius-card: 14px;
+}
+
+@theme inline {
+  --color-forest-deep: var(--forest-deep);
+  --color-forest: var(--forest);
+  --color-gold: var(--gold);
+  --color-gold-deep: var(--gold-deep);
+  --color-cream: var(--cream);
+  --color-sage-muted: var(--sage-muted);
+  --color-glass: var(--glass);
+  --color-glass-solid: var(--glass-solid);
+  --color-glass-border: var(--glass-border);
+  --radius-panel: var(--radius-panel);
+  --radius-pill: var(--radius-pill);
+  --radius-card: var(--radius-card);
+  --font-display: var(--font-display);
+  --font-sans: var(--font-sans);
+}
+
+body {
+  background: var(--forest-deep);
+  color: var(--cream);
+}
