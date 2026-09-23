@@ -1,0 +1,58 @@
+import Link from "next/link";
+import { Container } from "@/components/ui/Container";
+import { MenuToggle } from "@/components/site/MenuToggle";
+import { site } from "@/content/site";
+
+const NAV_LINKS = [
+  { label: "Rituals", href: "#routine" },
+  { label: "Ingredients", href: "#ingredients" },
+  { label: "Science", href: "#actives" },
+  { label: "Our story", href: "/about" },
+];
+
+export function Nav() {
+  return (
+    <header className="sticky top-4 z-50">
+      <Container>
+        <div className="flex items-center justify-between rounded-pill border border-glass-border bg-glass-solid px-6 py-3 md:bg-glass md:backdrop-blur-[12px]">
+          <Link href="/" className="flex flex-col leading-none">
+            {/* [CONTENT: vector logo] — text lockup placeholder */}
+            <span className="font-display text-lg text-gold">AURADERM</span>
+            <span className="font-sans text-[0.625rem] uppercase tracking-[0.24em] text-sage-muted">
+              Botanicals
+            </span>
+          </Link>
+
+          <nav className="hidden items-center gap-8 lg:flex" aria-label="Primary">
+            {NAV_LINKS.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="font-sans text-xs uppercase tracking-[0.18em] text-cream transition-colors hover:text-gold"
+              >
+                {link.label}
+              </Link>
+            ))}
+          </nav>
+
+          <div className="flex items-center gap-4">
+            {site.commerce ? (
+              <div className="hidden items-center gap-4 lg:flex" aria-label="Account actions">
+                <button type="button" aria-label="Search" className="text-cream">
+                  Search
+                </button>
+                <button type="button" aria-label="Account" className="text-cream">
+                  Account
+                </button>
+                <button type="button" aria-label="Cart" className="text-cream">
+                  Cart
+                </button>
+              </div>
+            ) : null}
+            <MenuToggle links={NAV_LINKS} />
+          </div>
+        </div>
+      </Container>
+    </header>
+  );
+}
