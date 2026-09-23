@@ -41,6 +41,11 @@ export type SustainabilityItem = {
   body: string;
 };
 
+export type SocialLink = {
+  label: string;
+  href: string;
+};
+
 export type Site = {
   brand: string;
   commerce: boolean;
@@ -70,8 +75,22 @@ export type Site = {
   ingredients: Ingredient[];
   benefits: Benefit[];
   actives: Active[];
+  activesIntro: {
+    eyebrow: string;
+    headline: string;
+    accentWord: string;
+    body: string;
+    cta: { label: string; href: string };
+  };
   routine: RoutineStep[];
+  routineIntro: {
+    eyebrow: string;
+    headline: string;
+    body: string;
+  };
   sustainability: SustainabilityItem[] | null;
+  givesBackHeadline: string;
+  social: SocialLink[];
 };
 
 const CONTENT = (what: string) => `[CONTENT: ${what}]`;
@@ -130,10 +149,24 @@ export const site: Site = {
     { badge: CONTENT("active 3 short-name"), name: CONTENT("active 3 full name"), oneLiner: CONTENT("active 3 one-liner"), image: null },
     { badge: CONTENT("active 4 short-name"), name: CONTENT("active 4 full name"), oneLiner: CONTENT("active 4 one-liner"), image: null },
   ],
+  activesIntro: {
+    eyebrow: CONTENT("actives eyebrow"),
+    headline: CONTENT("actives headline, up to 4 lines"),
+    accentWord: CONTENT("actives accent word"),
+    body: CONTENT("actives paragraph — claims-reviewed"),
+    cta: { label: CONTENT("actives CTA label"), href: CONTENT("actives CTA destination") },
+  },
   routine: [
     { slot: "AM", title: CONTENT("AM step title"), body: CONTENT("AM step copy") },
     { slot: "SPF REAPPLY", title: CONTENT("SPF reapply step title"), body: CONTENT("SPF reapply step copy") },
     { slot: "PM", title: CONTENT("PM step title"), body: CONTENT("PM step copy") },
   ],
+  routineIntro: {
+    eyebrow: CONTENT("routine eyebrow"),
+    headline: CONTENT("routine headline, 3 lines"),
+    body: CONTENT("routine paragraph"),
+  },
   sustainability: null,
+  givesBackHeadline: CONTENT("gives back headline, up to 4 lines"),
+  social: [],
 };

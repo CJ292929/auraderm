@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Cormorant_Garamond, Jost } from "next/font/google";
 import "./globals.css";
+import { Footer } from "@/components/site/Footer";
 
 const displayFont = Cormorant_Garamond({
   variable: "--font-display",
@@ -28,7 +29,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={`${displayFont.variable} ${sansFont.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        {children}
+        <Footer />
+      </body>
     </html>
   );
 }
